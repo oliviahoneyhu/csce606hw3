@@ -11,30 +11,16 @@ class MoviesController < ApplicationController
   end
 
   def index
-    @all_ratings = ['G','PG','PG-13','R']
-    @selected_ratings = @all_ratings
+    @sort_column = params[:sort_by]
 
-    if params.key?(:sort_by)
-      session[:sort_by] = params[:sort_by]
-    elsif session.key?(:sort_by)
-      params[:sort_by] = session[:sort_by]
-      flash.keep
-      redirect_to movies_path(params) and return
+    case @sort_column
+    when 'title'
+      @movies = Movie.order('title ASC')
+    when 'release_date'
+      @movies = Movie.order('release_date ASC')
+    else
+      @movies = Movie.all
     end
-    @hilite = sort_by = session[:sort_by]
-    
-    if params.key?(:ratings)
-      session[:ratings] = params[:ratings]
-    elsif session.key?(:ratings)
-      params[:ratings] = session[:ratings]
-      flash.keep
-      redirect_to movies_path(params) and return
-    end
-
-    if session.key?(:ratings)
-      @selected_ratings = session[:ratings].keys
-    end
-    @movies = Movie.order(sort_by).where(rating: @selected_ratings)
   end
 
   def new
